@@ -32,7 +32,8 @@ const FOREST_HEMI_INTENSITY = 0.9
 
 // Forest edge clouds: the wood is a hard-edged block, so a ring of soft cloud banks and a low mist is wrapped around its
 // perimeter. They hide the cut-off from every camera angle and fade in and out with the forest.
-const CLOUD_COUNT = 110 // cloud puffs around the perimeter (the low mist uses the same number again)
+const CLOUD_COUNT = 64 // cloud puffs around the perimeter. Each is a screen-sized see-through quad, so every extra puff is a whole layer of overdraw: fewer, still overlapping, is the biggest frame-rate win
+const MIST_COUNT = 44 // low mist puffs, same reasoning. The perimeter is ~1,160 units, so 44 puffs 110+ wide still overlap 4x or more and leave no gap
 const CLOUD_SIZE = 110 // world units: average puff width
 const CLOUD_DEPTH = 60 // world units: how far the bank is spread across the edge (some inside, most outside)
 const CLOUD_OPACITY = 0.55
@@ -394,12 +395,19 @@ export function createDnaScene({ canvas, modelUrls, getStops, onLoadProgress, on
 
     // A "cut" hides the long flight between the two worlds: the screen is black, so jump.
     const pose = B.cut ? (t < 0.5 ? A : B) : null
-    const tp = pose ? 0 : smoother(t)
+    const tp = pose ? 0 : lerp(t, smoother(t), B.ease ?? 1) // ease < 1 lets pass-through beats keep some speed instead of stopping dead
 
     const P = pose ?? A
     const Q = pose ?? B
     keyPos.set(lerp(P.pos[0], Q.pos[0], tp), lerp(P.pos[1], Q.pos[1], tp), lerp(P.pos[2], Q.pos[2], tp))
     keyLook.set(lerp(P.look[0], Q.look[0], tp), lerp(P.look[1], Q.look[1], tp), lerp(P.look[2], Q.look[2], tp))
+    // A straight pull-away (both poses stacked over the same look point) rises by a constant RATIO per scroll step instead of a
+    // constant distance, so the world shrinks at a steady rate all the way from the forest to the planet.
+    if (B.zoom && !pose) {
+      const hA = A.pos[1] - A.look[1]
+      const hB = B.pos[1] - B.look[1]
+      keyPos.y = keyLook.y + hA * Math.pow(hB / hA, tp)
+    }
     const roll = lerp(P.roll, Q.roll, tp)
     const sa = portrait ? P.shiftPortrait : P.shift
     const sb = portrait ? Q.shiftPortrait : Q.shift
@@ -613,6 +621,20 @@ export function createDnaScene({ canvas, modelUrls, getStops, onLoadProgress, on
     scene.add(group)
     const atmosphere = buildAtmosphere(new THREE.Vector3(90, 110, 130)) // same direction as the sun light set up in boot
     scene.add(atmosphere)
+
+    // Warm the planet up while it is hidden (the forest already does this): upload its textures and compile its shaders now,
+    // so the frame where it first fades in under the forest is not a hitch.
+    model.traverse((o) => {
+      if (!o.material) return
+      ;[].concat(o.material).forEach((m) => Object.values(m).forEach((v) => v && v.isTexture && renderer.initTexture(v)))
+    })
+    group.visible = true
+    atmosphere.visible = true
+    renderer.compile(scene, camera)
+    group.visible = false
+    atmosphere.visible = false
+
+    let lastD = -1
     earth = {
       group,
       update(dt, d) {
@@ -622,6 +644,8 @@ export function createDnaScene({ canvas, modelUrls, getStops, onLoadProgress, on
         if (!group.visible) return
         if (mixer) mixer.update(reduceMotion ? 0 : dt)
         else model.rotation.y += reduceMotion ? 0 : dt * 0.03
+        if (d === lastD) return // the fade has settled: no need to rewrite every material every frame
+        lastD = d
         mats.forEach((m) => {
           m.transparent = m._t || d < 0.999
           m.opacity = m._o * d
@@ -792,8 +816,8 @@ export function createDnaScene({ canvas, modelUrls, getStops, onLoadProgress, on
       return { x: box.min.x, z: box.max.z - s, nx: -1, nz: 0, tx: 0, tz: -1 }
     }
 
-    const place = (mat, i, lift, w, h) => {
-      const e = onEdge(((i + rand() * 0.8) / CLOUD_COUNT) * perim)
+    const place = (mat, i, count, lift, w, h) => {
+      const e = onEdge(((i + rand() * 0.8) / count) * perim)
       const out = -CLOUD_DEPTH * 0.3 + rand() * CLOUD_DEPTH // mostly outside the wood, some tucked inside it
       const sp = new THREE.Sprite(mat)
       sp.scale.set(w, h, 1)
@@ -804,9 +828,9 @@ export function createDnaScene({ canvas, modelUrls, getStops, onLoadProgress, on
         z: e.z + e.nz * out,
         tx: e.tx,
         tz: e.tz,
-        amp: 6 + rand() * 10,
-        bob: 1 + rand() * 2.5,
-        speed: 0.03 + rand() * 0.05,
+        amp: 3 + rand() * 5, // gentler drift: smaller sweep, slower pace (was 6-16 and 0.03-0.08)
+        bob: 0.6 + rand() * 1.4,
+        speed: 0.02 + rand() * 0.03,
         phase: rand() * Math.PI * 2,
       }
       sp.position.set(sp.userData.x, sp.userData.y, sp.userData.z)
@@ -817,12 +841,12 @@ export function createDnaScene({ canvas, modelUrls, getStops, onLoadProgress, on
     for (let i = 0; i < CLOUD_COUNT; i++) {
       // cloud banks reach from mid-trunk to just above the crowns
       const w = CLOUD_SIZE * (0.8 + rand() * 0.7)
-      place(cloudMats[i % cloudMats.length], i, treeH * (0.35 + rand() * 0.7), w, w * (0.55 + rand() * 0.2))
+      place(cloudMats[i % cloudMats.length], i, CLOUD_COUNT, treeH * (0.35 + rand() * 0.7), w, w * (0.55 + rand() * 0.2))
     }
-    for (let i = 0; i < CLOUD_COUNT; i++) {
+    for (let i = 0; i < MIST_COUNT; i++) {
       // low mist hugging the ground, wide and flat
       const w = CLOUD_SIZE * (1 + rand() * 0.6)
-      place(mistMat, i, w * 0.12 + rand() * 10, w, w * 0.28)
+      place(mistMat, i, MIST_COUNT, w * 0.12 + rand() * 10, w, w * 0.28)
     }
     scene.add(root)
 

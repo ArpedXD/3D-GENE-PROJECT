@@ -26,6 +26,11 @@
  *   forest         visibility of the forest (forest.glb), which sits between the ant and the planet
  *   curve          remaps a parameter's progress inside the segment, so lights go out early and return late
  *   cut            skip the flight: jump to this pose halfway, while the screen is black
+ *   zoom           the flight INTO this pose is a straight pull-away from the same look point: height is interpolated by RATIO
+ *                  (a steady zoom rate) instead of by distance, so 130 -> 6000 doesn't rush away in the first few percent of
+ *                  scroll and then crawl
+ *   ease           0..1, how much of the smoother-step ease the flight INTO this pose gets (default 1 = full ease in and out,
+ *                  0 = linear). Pass-through beats use less so the camera doesn't come to a dead stop at every one of them
  *   morph          the flight INTO this pose is a transformation, not a cut: the planet is born at the ant's
  *                  head (ANT_HEAD) at head size (HEAD_RADIUS), then swells to EARTH_RADIUS while its centre
  *                  sinks to EARTH_ORIGIN. Think of a balloon inflating from a pinpoint: it starts as big as
@@ -82,8 +87,10 @@ const POSE = {
   forestAerial: { pos: [0, A + 130, 0.02], look: [0, A, 0], roll: 0, shift: [0, 0], shiftPortrait: [0, 0], world: 1, dna: 0, ant: 1, earth: 0, forest: 1, soil: 0 },
   // ...as the camera climbs, the forest fades out and the planet fades in underneath, so the ant
   // is left standing on the north pole of a world that keeps shrinking beneath the camera.
-  antZoom4:    { pos: [0, A + 6000, 0.02], look: [0, A, 0], roll: 0, shift: [0, 0], shiftPortrait: [0, 0], world: 1, dna: 0, ant: 1, earth: 1, forest: 0, soil: 0, curve: { forest: [0, 0.1], earth: [0, 0.14] } },
-  antZoomFar:  { pos: [0, A + 19000, 0.02], look: [0, A, 0], roll: 0, shift: [0, 0], shiftPortrait: [0, 0], world: 1, dna: 0, ant: 1, earth: 1, forest: 0, soil: 0 },
+  // Forest fade-out and planet fade-in are stretched (0.1 -> 0.2, 0.14 -> 0.26) and the climb is a ratio zoom, so at the end of the forest fade
+  // the camera is only ~180 up. The block's edge only comes into view from about 240 up, so it is still never seen.
+  antZoom4:    { pos: [0, A + 6000, 0.02], look: [0, A, 0], roll: 0, shift: [0, 0], shiftPortrait: [0, 0], world: 1, dna: 0, ant: 1, earth: 1, forest: 0, soil: 0, zoom: true, ease: 0.8, curve: { forest: [0, 0.2], earth: [0.04, 0.26] } },
+  antZoomFar:  { pos: [0, A + 19000, 0.02], look: [0, A, 0], roll: 0, shift: [0, 0], shiftPortrait: [0, 0], world: 1, dna: 0, ant: 1, earth: 1, forest: 0, soil: 0, zoom: true, ease: 0.55 },
   // Planet: the ant's head becomes the Earth, then surface -> continent -> orbit.
   // The planet is born at the head and swells (see `morph`). It is opaque almost at once, and the ant's body
   // fades out underneath it while the camera pulls away, so it reads as the head transforming, not a cross-fade.
@@ -92,7 +99,7 @@ const POSE = {
   earthLand:  { pos: [8920, A + 20400, 6370], look: [0, A, 0], roll: 0.1, shift: [0.25, 0], shiftPortrait: [0, 0.2], world: 1, dna: 0, ant: 0, earth: 1, soil: 0, morph: true, curve: { ant: [0.2, 0.6], earth: [0, 0.05] } },
   // The continent beat: halfway between earthLand and earthOrbit, on the same arc (about 32,800 from the planet's centre),
   // aimed between the north pole and the planet's centre so the globe slides into frame while the camera keeps backing away.
-  earthLand2: { pos: [5180, 23190, 13050], look: [0, -3200, 0], roll: 0.05, shift: [0.27, 0], shiftPortrait: [0, 0.21], world: 1, dna: 0, ant: 0, earth: 1 },
+  earthLand2: { pos: [5180, 23190, 13050], look: [0, -3200, 0], roll: 0.05, shift: [0.27, 0], shiftPortrait: [0, 0.21], world: 1, dna: 0, ant: 0, earth: 1, ease: 0.55 },
   earthOrbit: { pos: [0, A + 24200, 20400], look: [0, E, 0], roll: 0, shift: [0.28, 0], shiftPortrait: [0, 0.22], world: 1, dna: 0, ant: 0, earth: 1 },
 }
 
