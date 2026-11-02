@@ -1,0 +1,188 @@
+{
+  "meta": {
+    "title": "Twelve questions, twelve base pairs",
+    "intro": "Every correct answer completes a pair in the helix. Every wrong one leaves a mismatch you can trace back to its chapter.",
+    "startLabel": "Start the quiz",
+    "nextLabel": "Next question",
+    "finishLabel": "See results",
+    "retryLabel": "Try again",
+    "topLabel": "Back to the start"
+  },
+  "ratings": [
+    { "min": 12, "title": "Perfect replication", "message": "Every rung matched. You read the study closely." },
+    { "min": 10, "title": "High fidelity", "message": "A couple of mismatches. The chapters below will close the gaps." },
+    { "min": 7, "title": "A few point mutations", "message": "You have the core ideas. Revisit the chapters below to fix the rest." },
+    { "min": 4, "title": "Several mismatches", "message": "The key ideas are there but patchy. Read the chapters below, then try again." },
+    { "min": 0, "title": "Mostly mismatched", "message": "Start with the chapters below and try again. The study rewards a second read." }
+  ],
+  "questions": [
+    {
+      "id": "q1",
+      "chapter": "blackout",
+      "chapterLabel": "How DNA works",
+      "question": "How many hydrogen bonds hold a G–C base pair together?",
+      "options": [
+        { "id": "a", "text": "Two" },
+        { "id": "b", "text": "Three" },
+        { "id": "c", "text": "Four" },
+        { "id": "d", "text": "One" }
+      ],
+      "answer": "b",
+      "explanation": "G always pairs with C, joined by three hydrogen bonds. A pairs with T through two. That fixed rule is how a cell copies the ladder without losing the message."
+    },
+    {
+      "id": "q2",
+      "chapter": "about-the-study",
+      "chapterLabel": "About the study",
+      "question": "Why are human embryonic stem cells (hESCs) the most contested stem cell source?",
+      "options": [
+        { "id": "a", "text": "They can only become one cell type" },
+        { "id": "b", "text": "Collecting them destroys early-stage embryos" },
+        { "id": "c", "text": "They are taken from adult skin" },
+        { "id": "d", "text": "They always cause tumours after transplant" }
+      ],
+      "answer": "b",
+      "explanation": "hESCs come from the inner cell mass of a blastocyst, so harvesting them destroys the embryo. Moral views on that differ between countries, which has delayed hESC-based therapies."
+    },
+    {
+      "id": "q3",
+      "chapter": "gene-therapy",
+      "chapterLabel": "Gene therapy",
+      "question": "What separates somatic from germ-line gene therapy?",
+      "options": [
+        { "id": "a", "text": "Somatic changes affect only the person treated; germ-line changes can pass to descendants" },
+        { "id": "b", "text": "Somatic therapy uses viruses and germ-line therapy never does" },
+        { "id": "c", "text": "Somatic changes are permanent, germ-line changes fade over time" },
+        { "id": "d", "text": "Somatic therapy edits embryos, germ-line therapy edits blood cells" }
+      ],
+      "answer": "a",
+      "explanation": "A change in body cells affects one patient. A germ-line change would be inherited, which is why the study treats it as an ethical red line."
+    },
+    {
+      "id": "q4",
+      "chapter": "gene-therapy",
+      "chapterLabel": "Gene therapy",
+      "question": "In December 2023 the FDA approved Casgevy, the first CRISPR/Cas9 therapy. What does it treat?",
+      "options": [
+        { "id": "a", "text": "Parkinson's disease" },
+        { "id": "b", "text": "Hereditary angioedema" },
+        { "id": "c", "text": "Severe sickle cell disease" },
+        { "id": "d", "text": "Macular degeneration" }
+      ],
+      "answer": "c",
+      "explanation": "Casgevy edits the BCL11A enhancer in a patient's blood stem cells to reactivate fetal hemoglobin. Lyfgenia, a lentiviral therapy approved the same month, treats the same disease."
+    },
+    {
+      "id": "q5",
+      "chapter": "stem-cell-research",
+      "chapterLabel": "Stem cell research",
+      "question": "How do induced pluripotent stem cells (iPSCs) avoid the embryo problem?",
+      "options": [
+        { "id": "a", "text": "They are made by reprogramming adult cells, such as skin cells, into an embryonic-like state" },
+        { "id": "b", "text": "They are collected from the placenta after birth" },
+        { "id": "c", "text": "They are grown from animal embryos instead" },
+        { "id": "d", "text": "They come from the inner cell mass of a blastocyst" }
+      ],
+      "answer": "a",
+      "explanation": "Defined transcription factors push adult cells back to pluripotency, so no embryo is destroyed. The trade-off is risk: undifferentiated iPSCs can form teratomas after transplantation."
+    },
+    {
+      "id": "q6",
+      "chapter": "clinical-milestones",
+      "chapterLabel": "Clinical milestones",
+      "question": "In the Kyoto Parkinson's trial, what happened to dopamine synthesis at 24 months?",
+      "options": [
+        { "id": "a", "text": "It rose 63.5% in the high-dose group against 7.0% in the low-dose group" },
+        { "id": "b", "text": "It rose 7.0% in the high-dose group against 63.5% in the low-dose group" },
+        { "id": "c", "text": "It rose about 50% in both groups" },
+        { "id": "d", "text": "It did not change in either group" }
+      ],
+      "answer": "a",
+      "explanation": "Seven patients received iPSC-derived dopaminergic progenitors, and 4 of 6 evaluable patients improved significantly. The gap between the two doses is a clear dose response, which turns dose into an equity question."
+    },
+    {
+      "id": "q7",
+      "chapter": "clinical-milestones",
+      "chapterLabel": "Clinical milestones",
+      "question": "What makes a base editor different from standard CRISPR-Cas9 cutting?",
+      "options": [
+        { "id": "a", "text": "It cuts both DNA strands twice for extra accuracy" },
+        { "id": "b", "text": "It carries a whole new gene inside a viral shell" },
+        { "id": "c", "text": "It converts one DNA letter into another without a double-strand break" },
+        { "id": "d", "text": "It only works on embryos" }
+      ],
+      "answer": "c",
+      "explanation": "A base editor fuses a modified Cas9 to a deaminase, so it rewrites a single letter without cutting through both strands. That avoids the most dangerous repair outcomes, but it cannot fix insertions, deletions or triplet repeats."
+    },
+    {
+      "id": "q8",
+      "chapter": "ethical-issues",
+      "chapterLabel": "Ethical issues",
+      "question": "What did He Jiankui announce at the Second International Summit on Human Genome Editing in 2018?",
+      "options": [
+        { "id": "a", "text": "The first approved CRISPR therapy for sickle cell disease" },
+        { "id": "b", "text": "That he had edited human embryos, producing twins with intended HIV resistance" },
+        { "id": "c", "text": "A global ban on all gene editing" },
+        { "id": "d", "text": "A method for making iPSCs from skin cells" }
+      ],
+      "answer": "b",
+      "explanation": "His claims were unverified, and the organizers condemned the work as irresponsible. The summit did not call for a blanket ban. It pointed toward a rigorous, responsible pathway for any future trials."
+    },
+    {
+      "id": "q9",
+      "chapter": "ethical-issues",
+      "chapterLabel": "Ethical issues",
+      "question": "Why is consent the decisive argument against germ-line editing, even with safer tools?",
+      "options": [
+        { "id": "a", "text": "Future generations inherit the edit and cannot be asked to agree" },
+        { "id": "b", "text": "Editing tools are too inaccurate to ever be used" },
+        { "id": "c", "text": "Embryos cannot survive being edited" },
+        { "id": "d", "text": "Regulators have not yet reviewed any germ-line research" }
+      ],
+      "answer": "a",
+      "explanation": "A safer editor does not resolve the objection. The people who would carry the edit are not yet born, and no current governance mechanism can obtain their consent."
+    },
+    {
+      "id": "q10",
+      "chapter": "benefits-and-risks",
+      "chapterLabel": "Benefits and risks",
+      "question": "Sickle cell disease causes roughly 300,000 to 400,000 births a year. Where do over 80% of them occur?",
+      "options": [
+        { "id": "a", "text": "North America" },
+        { "id": "b", "text": "Sub-Saharan Africa" },
+        { "id": "c", "text": "Western Europe" },
+        { "id": "d", "text": "East Asia" }
+      ],
+      "answer": "b",
+      "explanation": "Meanwhile U.S. list prices sit near $2.2 million for Casgevy and $3.1 million for Lyfgenia per patient. A cure that exists is not yet a cure that arrives where the need is greatest."
+    },
+    {
+      "id": "q11",
+      "chapter": "the-forest",
+      "chapterLabel": "From one body to an ecosystem",
+      "question": "Why does the forest chapter say heritable edits matter beyond a single patient?",
+      "options": [
+        { "id": "a", "text": "A change made to one organism can travel through the species around it" },
+        { "id": "b", "text": "Forests are the main source of therapeutic stem cells" },
+        { "id": "c", "text": "Edited genes cannot survive outside a laboratory" },
+        { "id": "d", "text": "Ecosystems are already covered by strict gene-editing law" }
+      ],
+      "answer": "a",
+      "explanation": "No genome lives alone. Each one sits inside a web of other lives, so heritable edits raise the same question at the scale of a whole ecosystem."
+    },
+    {
+      "id": "q12",
+      "chapter": "access-and-governance",
+      "chapterLabel": "Access and governance",
+      "question": "Which instrument ties Medicaid payment for sickle cell gene therapies to outcomes, with rebates if treatment does not fully work?",
+      "options": [
+        { "id": "a", "text": "The WHO genome editing framework" },
+        { "id": "b", "text": "The Oviedo Convention" },
+        { "id": "c", "text": "India's centralised licensing authority" },
+        { "id": "d", "text": "The CMS Cell and Gene Therapy Access Model" }
+      ],
+      "answer": "d",
+      "explanation": "Outcome-based payment turns the question \"does this work?\" into a contractual condition. The WHO framework is non-binding advice, and the Oviedo Convention prohibits heritable genome modification."
+    }
+  ]
+}

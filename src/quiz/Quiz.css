@@ -1,0 +1,386 @@
+/*
+ * Quiz. Sits after the last story beat, over the held orbit view of the Earth.
+ * Palette comes from the scene: night navy, and the four base colours of the helix
+ * (A sky, T amber, G violet, C teal). Type follows the chapter panels: Bricolage Grotesque for
+ * questions and buttons, Instrument Sans for interface text, Newsreader for the reading text.
+ */
+
+.quiz {
+  --q-ink: #eef2ff;
+  --q-dim: rgba(224, 231, 255, 0.74);
+  --q-line: rgba(147, 165, 207, 0.3);
+  --q-match: #5eead4;
+  --q-miss: #ff8a73;
+  --q-sans: 'Bricolage Grotesque', 'Segoe UI Variable Display', 'Segoe UI', system-ui, sans-serif;
+  --q-body: 'Instrument Sans', 'Segoe UI Variable Text', 'Segoe UI', system-ui, sans-serif;
+  --q-serif: 'Newsreader Variable', 'Iowan Old Style', Georgia, serif;
+
+  position: relative;
+  z-index: 4; /* above the canvas and veil, below the top bar */
+  min-height: 100vh;
+  min-height: 100svh;
+  padding: clamp(5.5rem, 12vh, 8rem) clamp(2.25rem, 5vw, 4.5rem) clamp(3rem, 9vh, 5rem) clamp(1.25rem, 5vw, 4.5rem);
+  color: var(--q-ink);
+}
+
+/* A scrim from the left, so the planet keeps glowing on the right. It fades in from the top to blend with the last beat. */
+.quiz::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background: linear-gradient(90deg, rgba(4, 7, 22, 0.94) 0%, rgba(4, 7, 22, 0.86) 48%, rgba(4, 7, 22, 0.3) 80%, rgba(4, 7, 22, 0) 100%);
+  -webkit-mask-image: linear-gradient(to bottom, transparent 0, #000 9rem);
+  mask-image: linear-gradient(to bottom, transparent 0, #000 9rem);
+}
+
+.quiz__wrap {
+  width: min(100%, 42rem);
+}
+
+/* ───────── helix progress ───────── */
+
+.helix {
+  display: block;
+  width: 100%;
+  height: auto;
+  margin: 0 0 clamp(1.6rem, 4vh, 2.6rem);
+  overflow: visible;
+}
+
+.helix__strand {
+  fill: none;
+  stroke: rgba(147, 165, 207, 0.4);
+  stroke-width: 3;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.helix__strand.is-front {
+  stroke: rgba(198, 214, 255, 0.95);
+  stroke-width: 4;
+}
+
+.rung__bar {
+  stroke: var(--q-line);
+  stroke-width: 3;
+  stroke-linecap: round;
+}
+.rung__dot {
+  fill: rgba(4, 7, 22, 0.9);
+  stroke: var(--q-line);
+  stroke-width: 2;
+  transform-box: fill-box;
+  transform-origin: center;
+}
+
+/* matched: complementary colours joined by a bar that draws itself */
+.rung--match .rung__bar {
+  stroke: var(--c1);
+  stroke-dasharray: 1;
+  animation: rung-draw 0.55s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+.rung--match .rung__dot--1 {
+  fill: var(--c1);
+  stroke: var(--c1);
+}
+.rung--match .rung__dot--2 {
+  fill: var(--c2);
+  stroke: var(--c2);
+}
+.rung--match .rung__dot {
+  animation: rung-pop 0.45s cubic-bezier(0.22, 1, 0.36, 1) 0.2s both;
+}
+
+/* mismatched: a broken bar, and the second base never arrives */
+.rung--mismatch .rung__bar {
+  stroke: var(--q-miss);
+  stroke-dasharray: 0.12 0.1;
+  opacity: 0.8;
+}
+.rung--mismatch .rung__dot--1 {
+  fill: var(--c1);
+  stroke: var(--c1);
+}
+.rung--mismatch .rung__dot--2 {
+  fill: transparent;
+  stroke: var(--q-miss);
+  stroke-dasharray: 3 3;
+}
+
+/* the question you are on */
+.rung.is-now .rung__dot {
+  stroke: var(--q-ink);
+  animation: rung-pulse 1.8s ease-in-out infinite;
+}
+
+@keyframes rung-draw {
+  from {
+    stroke-dashoffset: 1;
+  }
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+@keyframes rung-pop {
+  from {
+    transform: scale(0.4);
+  }
+  60% {
+    transform: scale(1.25);
+  }
+  to {
+    transform: scale(1);
+  }
+}
+@keyframes rung-pulse {
+  50% {
+    transform: scale(1.3);
+  }
+}
+
+/* ───────── views: all stacked in one grid cell ───────── */
+
+.quiz__stack {
+  display: grid;
+}
+.quiz__view {
+  grid-area: 1 / 1;
+  min-width: 0;
+  opacity: 0;
+  visibility: hidden;
+  transform: translate3d(0, 10px, 0);
+  transition: opacity 0.25s ease, transform 0.25s ease, visibility 0s linear 0.25s;
+}
+.quiz__view[data-on='true'] {
+  opacity: 1;
+  visibility: visible;
+  transform: none;
+  transition: opacity 0.5s var(--story-ease, ease) 0.12s, transform 0.5s var(--story-ease, ease) 0.12s, visibility 0s;
+}
+
+/* ───────── type ───────── */
+
+.quiz__count {
+  margin: 0 0 0.7rem;
+  font: 500 0.95rem/1.4 var(--q-body);
+  color: #7dd3fc;
+}
+
+.quiz__title {
+  margin: 0 0 1.5rem;
+  font-family: var(--q-sans);
+  font-weight: 700;
+  font-size: clamp(1.5rem, 2.9vw, 2.25rem);
+  line-height: 1.14;
+  letter-spacing: -0.025em;
+  text-wrap: balance;
+  text-shadow: 0 2px 24px rgba(4, 7, 22, 0.6);
+}
+.quiz__title:focus {
+  outline: none;
+}
+.quiz__title--big {
+  font-size: clamp(2.2rem, 5vw, 3.9rem);
+  line-height: 1.04;
+  letter-spacing: -0.03em;
+}
+
+.quiz__lede {
+  margin: 0 0 2rem;
+  max-width: 30rem;
+  font: 400 clamp(1.02rem, 1.2vw, 1.14rem) / 1.65 var(--q-body);
+  color: var(--q-dim);
+}
+
+/* ───────── answer options ───────── */
+
+.quiz__options {
+  display: grid;
+  gap: 0.6rem;
+}
+
+.opt {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  gap: 0.95rem;
+  width: 100%;
+  min-height: 3.5rem;
+  padding: 0.7rem 1rem 0.7rem 0.75rem;
+  font: 500 1.02rem/1.4 var(--q-body);
+  text-align: left;
+  color: var(--q-ink);
+  background: rgba(10, 18, 48, 0.55);
+  border: 1px solid var(--q-line);
+  border-radius: 14px;
+  backdrop-filter: blur(6px);
+  cursor: pointer;
+  transition: border-color 0.18s ease, background-color 0.18s ease, opacity 0.25s ease;
+}
+.opt:focus-visible {
+  outline: 2px solid var(--c);
+  outline-offset: 3px;
+}
+.opt[aria-disabled='true'] {
+  cursor: default;
+}
+.opt[data-state='idle']:hover {
+  border-color: var(--c);
+  background: rgba(20, 32, 76, 0.7);
+}
+
+/* the letter is a base: A, T, G or C, in the scene's own colours */
+.opt__base {
+  display: grid;
+  place-items: center;
+  width: 2.15rem;
+  height: 2.15rem;
+  font: 700 1rem/1 var(--q-sans);
+  color: var(--c);
+  background: color-mix(in srgb, var(--c) 16%, transparent);
+  border: 1.5px solid var(--c);
+  border-radius: 50%;
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+.opt[data-state='idle']:hover .opt__base {
+  background: color-mix(in srgb, var(--c) 34%, transparent);
+}
+
+.opt__flag {
+  font: 600 0.85rem/1 var(--q-body);
+  white-space: nowrap;
+}
+
+.opt[data-state='right'] {
+  border-color: var(--q-match);
+  background: rgba(94, 234, 212, 0.1);
+}
+.opt[data-state='right'] .opt__base {
+  color: #04121a;
+  background: var(--q-match);
+  border-color: var(--q-match);
+}
+.opt[data-state='right'] .opt__flag {
+  color: var(--q-match);
+}
+.opt[data-state='wrong'] {
+  border-color: var(--q-miss);
+  background: rgba(255, 138, 115, 0.1);
+}
+.opt[data-state='wrong'] .opt__base {
+  color: var(--q-miss);
+  background: transparent;
+  border-color: var(--q-miss);
+  border-style: dashed;
+}
+.opt[data-state='wrong'] .opt__flag {
+  color: var(--q-miss);
+}
+.opt[data-state='rest'] {
+  opacity: 0.42;
+}
+
+/* ───────── feedback: its space is reserved, so nothing jumps when it appears ───────── */
+
+.quiz__feedback {
+  margin-top: 1.4rem;
+  min-height: 12.5rem;
+  visibility: hidden;
+}
+.quiz__feedback[data-shown='true'] {
+  visibility: visible;
+}
+.quiz__verdict {
+  margin: 0 0 0.55rem;
+  font: 700 1.08rem/1.35 var(--q-sans);
+  letter-spacing: -0.01em;
+}
+.quiz__feedback[data-result='match'] .quiz__verdict {
+  color: var(--q-match);
+}
+.quiz__feedback[data-result='mismatch'] .quiz__verdict {
+  color: var(--q-miss);
+}
+.quiz__why {
+  margin: 0 0 1.3rem;
+  max-width: 36rem;
+  font: 400 1.12rem/1.62 var(--q-serif);
+  color: rgba(232, 239, 255, 0.86);
+}
+
+.quiz__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.7rem;
+}
+
+/* ───────── results ───────── */
+
+.quiz__score {
+  display: flex;
+  align-items: baseline;
+  gap: 0.8rem;
+  margin: 0 0 0.6rem;
+}
+.quiz__score-num {
+  font: 700 clamp(4rem, 10vw, 6.5rem) / 0.9 var(--q-sans);
+  letter-spacing: -0.05em;
+  color: #7dd3fc;
+}
+.quiz__score-of {
+  font: italic 400 clamp(1.1rem, 1.8vw, 1.35rem) / 1.2 var(--q-serif);
+  color: var(--q-dim);
+}
+.quiz__chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.55rem;
+  margin: 0 0 1.8rem;
+}
+.quiz__chip {
+  min-height: 2.4rem;
+  padding: 0.55rem 1.1rem;
+  font-size: 0.9rem;
+}
+
+/* ───────── story panel: steps aside once the quiz is on screen ───────── */
+
+.story-fade {
+  transition: opacity 0.35s ease, visibility 0s linear 0s;
+}
+.story-fade[data-hidden='true'] {
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transition: opacity 0.35s ease, visibility 0s linear 0.35s;
+}
+
+/* ───────── small screens: full-width scrim, room for the dot rail ───────── */
+
+@media (max-width: 760px), (max-aspect-ratio: 1/1) {
+  .quiz {
+    padding-right: 2.1rem;
+  }
+  .quiz::before {
+    background: linear-gradient(to bottom, rgba(4, 7, 22, 0.9), rgba(4, 7, 22, 0.94));
+  }
+  .quiz__feedback {
+    min-height: 15rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .quiz__view,
+  .quiz__view[data-on='true'],
+  .opt,
+  .story-fade {
+    transition-duration: 0.01ms !important;
+    transition-delay: 0s !important;
+  }
+  .rung--match .rung__bar,
+  .rung--match .rung__dot,
+  .rung.is-now .rung__dot {
+    animation: none;
+  }
+}
